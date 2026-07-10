@@ -5,8 +5,14 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+                    <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5">
+                        <div class="bg-[#8F55EB] text-white rounded-xl p-1.5 flex items-center justify-center w-8 h-8 shadow-sm shadow-purple-200/50">
+                            <!-- ECG Wave Logo Icon -->
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h3l3-7 4 14 3-10 2 3h3" />
+                            </svg>
+                        </div>
+                        <span class="text-lg font-bold tracking-tight text-gray-900">PCOS <span class="text-[#8F55EB] font-semibold">Check</span></span>
                     </a>
                 </div>
 
@@ -15,6 +21,15 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('pemeriksaan')" :active="request()->routeIs('pemeriksaan')">
+                        {{ __('Pemeriksaan Baru') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('riwayat')" :active="request()->routeIs('riwayat')">
+                        {{ __('Riwayat') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('edukasi')" :active="request()->routeIs('edukasi')">
+                        {{ __('Edukasi') }}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -22,7 +37,7 @@
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-semibold rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
                             <div>{{ Auth::user()->name }}</div>
 
                             <div class="ms-1">
@@ -70,12 +85,21 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('pemeriksaan')" :active="request()->routeIs('pemeriksaan')">
+                {{ __('Pemeriksaan Baru') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('riwayat')" :active="request()->routeIs('riwayat')">
+                {{ __('Riwayat') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('edukasi')" :active="request()->routeIs('edukasi')">
+                {{ __('Edukasi') }}
+            </x-responsive-nav-link>
         </div>
 
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200">
             <div class="px-4">
-                <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
+                <div class="font-bold text-base text-gray-800">{{ Auth::user()->name }}</div>
                 <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
             </div>
 
