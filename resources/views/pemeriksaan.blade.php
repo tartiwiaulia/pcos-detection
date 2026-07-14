@@ -2,27 +2,27 @@
     <div class="py-10 bg-gray-50 min-h-[calc(100vh-4rem)]" x-data="{
         step: 1,
         submitting: false,
-        
+
         // Step 1 variables
         age: 24,
         weight: 58,
         height: 158,
         systolic: 120,
         diastolic: 80,
-        
+
         // Step 2 variables
         cycle_length: 28,
         period_duration: 5,
         cycle_irregularity: false,
         severe_pain: false,
-        
+
         // Step 3 variables
         hirsutism: false,
         weight_gain: false,
         severe_acne: false,
         hair_loss: false,
         dark_skin: false,
-        
+
         // Calculated result variables
         risk_score: 0,
         risk_level: '', // 'Rendah', 'Sedang', 'Tinggi'
@@ -30,7 +30,7 @@
         error_message: '',
 
         // Alamat API model AI (FastAPI). Sesuaikan kalau di-deploy ke domain lain.
-        aiApiUrl: 'http://127.0.0.1:8000/predict',
+        aiApiUrl: '/pemeriksaan',
 
         // Methods
         validateStep1() {
@@ -70,13 +70,23 @@
             try {
                 const response = await fetch(this.aiApiUrl, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content'),
+                    },
                     body: JSON.stringify({
+                        age: this.age,
                         weight: this.weight,
                         height: this.height,
+                        systolic: this.systolic,
+                        diastolic: this.diastolic,
+                        cycle_length: this.cycle_length,
+                        period_duration: this.period_duration,
                         cycle_irregularity: this.cycle_irregularity,
-                        weight_gain: this.weight_gain,
+                        severe_pain: this.severe_pain,
                         hirsutism: this.hirsutism,
+                        weight_gain: this.weight_gain,
                         severe_acne: this.severe_acne,
                         hair_loss: this.hair_loss,
                         dark_skin: this.dark_skin,
@@ -100,7 +110,7 @@
         }
     }">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            
+
             <!-- Powered by JST Pill Badge & Headers -->
             <div class="mb-8 text-center" x-show="step < 4 && !submitting">
                 <div class="flex justify-center mb-2.5">
@@ -182,7 +192,7 @@
             </div>
 
             <!-- STEP 1: DATA DIRI -->
-            <div class="bg-white border border-gray-100 rounded-3xl p-6 sm:p-10 shadow-xl shadow-gray-200/35 max-w-3xl mx-auto" 
+            <div class="bg-white border border-gray-100 rounded-3xl p-6 sm:p-10 shadow-xl shadow-gray-200/35 max-w-3xl mx-auto"
                  x-show="step === 1 && !submitting" x-cloak>
                 <div class="mb-8">
                     <h2 class="text-xl font-extrabold text-gray-900 mb-1">Data Diri</h2>
@@ -196,7 +206,7 @@
                             <label for="age" class="text-xs font-bold text-gray-400 uppercase tracking-wide">Umur</label>
                             <span class="text-base font-extrabold text-[#8F55EB] bg-purple-50 px-3 py-1 rounded-xl" x-text="age + ' Tahun'"></span>
                         </div>
-                        <input id="age" type="range" min="15" max="50" x-model="age" 
+                        <input id="age" type="range" min="15" max="50" x-model="age"
                                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#8F55EB]" />
                     </div>
 
@@ -206,7 +216,7 @@
                             <label for="weight" class="text-xs font-bold text-gray-400 uppercase tracking-wide">Berat Badan</label>
                             <span class="text-base font-extrabold text-[#8F55EB] bg-purple-50 px-3 py-1 rounded-xl" x-text="weight + ' kg'"></span>
                         </div>
-                        <input id="weight" type="range" min="30" max="150" x-model="weight" 
+                        <input id="weight" type="range" min="30" max="150" x-model="weight"
                                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#8F55EB]" />
                     </div>
 
@@ -216,7 +226,7 @@
                             <label for="height" class="text-xs font-bold text-gray-400 uppercase tracking-wide">Tinggi Badan</label>
                             <span class="text-base font-extrabold text-[#8F55EB] bg-purple-50 px-3 py-1 rounded-xl" x-text="height + ' cm'"></span>
                         </div>
-                        <input id="height" type="range" min="100" max="200" x-model="height" 
+                        <input id="height" type="range" min="100" max="200" x-model="height"
                                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#8F55EB]" />
                     </div>
 
@@ -240,7 +250,7 @@
 
                 <!-- Footer Navigation -->
                 <div class="mt-8 flex justify-end">
-                    <button @click="nextStep()" 
+                    <button @click="nextStep()"
                             class="bg-[#8F55EB] hover:bg-[#7c44db] text-white font-bold py-3.5 px-8 rounded-xl shadow-lg shadow-purple-200/50 hover:shadow-xl transition-all duration-150 flex items-center gap-2 text-sm">
                         Selanjutnya
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -251,7 +261,7 @@
             </div>
 
             <!-- STEP 2: SIKLUS HAID -->
-            <div class="bg-white border border-gray-100 rounded-3xl p-6 sm:p-10 shadow-xl shadow-gray-200/35 max-w-3xl mx-auto" 
+            <div class="bg-white border border-gray-100 rounded-3xl p-6 sm:p-10 shadow-xl shadow-gray-200/35 max-w-3xl mx-auto"
                  x-show="step === 2 && !submitting" x-cloak>
                 <div class="mb-8">
                     <h2 class="text-xl font-extrabold text-gray-900 mb-1">Siklus Haid</h2>
@@ -268,7 +278,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
                             </svg>
                         </div>
-                        <input type="number" x-model.number="cycle_length" 
+                        <input type="number" x-model.number="cycle_length"
                                class="block w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8F55EB]/20 focus:border-[#8F55EB] font-bold text-gray-800 text-sm" />
                     </div>
                     <!-- Durasi Haid -->
@@ -279,7 +289,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
                             </svg>
                         </div>
-                        <input type="number" x-model.number="period_duration" 
+                        <input type="number" x-model.number="period_duration"
                                class="block w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8F55EB]/20 focus:border-[#8F55EB] font-bold text-gray-800 text-sm" />
                     </div>
                 </div>
@@ -313,14 +323,14 @@
 
                 <!-- Footer Navigation -->
                 <div class="mt-8 flex justify-between items-center border-t border-gray-100 pt-6">
-                    <button @click="prevStep()" 
+                    <button @click="prevStep()"
                             class="bg-white border border-gray-200 hover:border-gray-300 text-gray-700 font-bold py-3 px-6 rounded-xl transition duration-150 flex items-center gap-2 text-sm">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
                         </svg>
                         Kembali
                     </button>
-                    <button @click="nextStep()" 
+                    <button @click="nextStep()"
                             class="bg-[#8F55EB] hover:bg-[#7c44db] text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-purple-200/50 hover:shadow-xl transition duration-150 flex items-center gap-2 text-sm">
                         Selanjutnya
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -331,7 +341,7 @@
             </div>
 
             <!-- STEP 3: GEJALA FISIK -->
-            <div class="bg-white border border-gray-100 rounded-3xl p-6 sm:p-10 shadow-xl shadow-gray-200/35 max-w-3xl mx-auto" 
+            <div class="bg-white border border-gray-100 rounded-3xl p-6 sm:p-10 shadow-xl shadow-gray-200/35 max-w-3xl mx-auto"
                  x-show="step === 3 && !submitting" x-cloak>
                 <div class="mb-8">
                     <h2 class="text-xl font-extrabold text-gray-900 mb-1">Gejala Fisik</h2>
@@ -403,14 +413,14 @@
 
                 <!-- Footer Navigation -->
                 <div class="mt-8 flex justify-between items-center border-t border-gray-100 pt-6">
-                    <button @click="prevStep()" 
+                    <button @click="prevStep()"
                             class="bg-white border border-gray-200 hover:border-gray-300 text-gray-700 font-bold py-3.5 px-6 rounded-xl transition duration-150 flex items-center gap-2 text-sm">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
                         </svg>
                         Kembali
                     </button>
-                    <button @click="submitAnalysis()" 
+                    <button @click="submitAnalysis()"
                             class="bg-[#8F55EB] hover:bg-[#7c44db] text-white font-bold py-3.5 px-8 rounded-xl shadow-lg shadow-purple-200/50 hover:shadow-xl transition duration-150 flex items-center gap-2 text-sm">
                         Lihat Hasil
                         <!-- Sparkles/Stars Icon -->
@@ -422,7 +432,7 @@
             </div>
 
             <!-- SIMULATED ANALYSIS / LOADING SCREEN -->
-            <div class="bg-white border border-gray-100 rounded-3xl p-12 text-center shadow-xl shadow-gray-200/40 flex flex-col items-center justify-center min-h-[350px] max-w-3xl mx-auto" 
+            <div class="bg-white border border-gray-100 rounded-3xl p-12 text-center shadow-xl shadow-gray-200/40 flex flex-col items-center justify-center min-h-[350px] max-w-3xl mx-auto"
                  x-show="submitting" x-cloak>
                 <div class="relative flex items-center justify-center w-24 h-24 mb-8">
                     <!-- Spinning Outer Ring -->
@@ -443,9 +453,9 @@
             </div>
 
             <!-- STEP 4: DIAGNOSTIC RESULTS REPORT -->
-            <div class="bg-white border border-gray-100 rounded-3xl p-6 sm:p-8 shadow-xl shadow-gray-200/40 max-w-3xl mx-auto" 
+            <div class="bg-white border border-gray-100 rounded-3xl p-6 sm:p-8 shadow-xl shadow-gray-200/40 max-w-3xl mx-auto"
                  x-show="step === 4 && !submitting" x-cloak>
-                
+
                 <!-- Report Header Badge -->
                 <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-gray-100 pb-6 mb-6">
                     <div class="flex items-center gap-3">
@@ -467,7 +477,7 @@
 
                 <!-- Main Analysis Contents -->
                 <div class="space-y-6">
-                    
+
                     <!-- Progress Bar score gauge -->
                     <div>
                         <div class="flex justify-between items-center mb-1.5 px-0.5 text-xs font-bold text-gray-400 uppercase tracking-wide">
@@ -531,7 +541,7 @@
                             class="w-full sm:w-auto bg-gray-150 hover:bg-gray-200 text-gray-700 font-bold py-3.5 px-6 rounded-xl transition duration-150 text-sm text-center">
                         Ulangi Pemeriksaan
                     </button>
-                    <a href="{{ route('dashboard') }}" 
+                    <a href="{{ route('dashboard') }}"
                        class="w-full sm:w-auto bg-[#8F55EB] hover:bg-[#7c44db] text-white font-bold py-3.5 px-8 rounded-xl shadow-lg shadow-purple-200/50 hover:shadow-xl transition duration-150 text-sm text-center">
                         Kembali ke Dashboard
                     </a>
