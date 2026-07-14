@@ -7,7 +7,7 @@
 
     <div class="py-10 bg-gray-50 min-h-[calc(100vh-4rem)]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            
+
             <!-- Purple Welcome Banner -->
             <div class="bg-gradient-to-r from-[#8F55EB] to-[#7A42D1] text-white rounded-3xl p-8 mb-8 relative overflow-hidden shadow-xl shadow-purple-200/20">
                 <!-- Background Decorative Glows -->
@@ -38,17 +38,17 @@
 
             <!-- Two-Column Layout Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                
+
                 <!-- Left Section: Chart and History List (Col-span 2) -->
                 <div class="lg:col-span-2 space-y-8">
-                    
+
                     <!-- 1. Risk Trend Chart Card -->
                     <div class="bg-white border border-gray-100 rounded-3xl p-6 sm:p-7 shadow-md shadow-gray-200/35">
                         <div class="mb-5">
                             <h3 class="text-lg font-extrabold text-gray-900 mb-1">Perkembangan Hasil Pemeriksaan</h3>
                             <p class="text-xs font-semibold text-gray-400">Grafik skor risiko dari pemeriksaan sebelumnya</p>
                         </div>
-                        
+
                         <!-- SVG Premium Mock Chart -->
                         <div class="relative w-full h-56 bg-gray-50/50 border border-gray-100 rounded-2xl p-4 flex items-center justify-center overflow-hidden">
                             <svg class="w-full h-full" viewBox="0 0 500 180" preserveAspectRatio="none">
@@ -64,31 +64,31 @@
                                         <feComposite in="SourceGraphic" in2="blur" operator="over" />
                                     </filter>
                                 </defs>
-                                
+
                                 <!-- Grid Lines -->
                                 <line x1="0" y1="30" x2="500" y2="30" stroke="#f1f5f9" stroke-width="1.5" />
                                 <line x1="0" y1="80" x2="500" y2="80" stroke="#f1f5f9" stroke-width="1.5" />
                                 <line x1="0" y1="130" x2="500" y2="130" stroke="#f1f5f9" stroke-width="1.5" />
-                                
+
                                 <!-- Area Path -->
                                 <path d="M 50 140 Q 150 110, 250 70 T 450 100 L 450 160 L 50 160 Z" fill="url(#chartGradient)" />
-                                
+
                                 <!-- Line Path -->
                                 <path d="M 50 140 Q 150 110, 250 70 T 450 100" fill="none" stroke="#8F55EB" stroke-width="3" stroke-linecap="round" filter="url(#glow)" />
-                                
+
                                 <!-- Interactive Dots -->
                                 <circle cx="50" cy="140" r="5" fill="#ffffff" stroke="#8F55EB" stroke-width="2.5" class="hover:scale-125 transition-transform duration-200 cursor-pointer" />
                                 <circle cx="210" cy="90" r="5" fill="#ffffff" stroke="#8F55EB" stroke-width="2.5" class="hover:scale-125 transition-transform duration-200 cursor-pointer" />
                                 <circle cx="340" cy="80" r="5" fill="#ffffff" stroke="#8F55EB" stroke-width="2.5" class="hover:scale-125 transition-transform duration-200 cursor-pointer" />
                                 <circle cx="450" cy="100" r="5" fill="#ffffff" stroke="#8F55EB" stroke-width="2.5" class="hover:scale-125 transition-transform duration-200 cursor-pointer" />
-                                
+
                                 <!-- Tooltip Value text labels (simulated) -->
                                 <text x="50" y="125" font-family="Figtree, sans-serif" font-size="9" font-weight="bold" fill="#8F55EB" text-anchor="middle">12%</text>
                                 <text x="210" y="75" font-family="Figtree, sans-serif" font-size="9" font-weight="bold" fill="#8F55EB" text-anchor="middle">45%</text>
                                 <text x="340" y="65" font-family="Figtree, sans-serif" font-size="9" font-weight="bold" fill="#8F55EB" text-anchor="middle">60%</text>
                                 <text x="450" y="85" font-family="Figtree, sans-serif" font-size="9" font-weight="bold" fill="#8F55EB" text-anchor="middle">38%</text>
                             </svg>
-                            
+
                             <!-- Custom Chart X-Axis Labels -->
                             <div class="absolute bottom-2 left-0 right-0 px-10 flex justify-between text-[10px] font-bold text-gray-400 tracking-wider">
                                 <span>Maret</span>
@@ -104,12 +104,21 @@
                         <div class="flex items-center justify-between mb-6">
                             <div>
                                 <h3 class="text-lg font-extrabold text-gray-900 mb-1">Riwayat Terbaru</h3>
-                                <p class="text-xs font-semibold text-gray-400">5 pemeriksaan terakhir</p>
+                                <p class="text-xs font-semibold text-gray-400">{{ $predictions->count() }} pemeriksaan terakhir</p>
                             </div>
                             <a href="{{ route('riwayat') }}" class="text-sm font-bold text-[#8F55EB] hover:text-[#7A42D1] transition-colors">
                                 Lihat semua
                             </a>
                         </div>
+                        @forelse ($predictions as $prediction)
+                            <div class="flex items-center justify-between p-4 mb-3 border border-gray-100 rounded-2xl">
+                                <div>
+                                    <span class="font-bold text-gray-800 text-sm">Risiko {{ $prediction->result_status }}</span>
+                                    <span class="text-xs text-gray-400 block">{{ $prediction->created_at->format('d M Y, H:i') }}</span>
+                                </div>
+                                <span class="font-extrabold text-[#8F55EB] text-sm">{{ $prediction->probability }}%</span>
+                            </div>
+                        @empty
 
                         <!-- Empty State Checklist Box -->
                         <div class="border border-dashed border-gray-200 rounded-2xl p-8 text-center flex flex-col items-center">
@@ -127,6 +136,7 @@
                                 Mulai Sekarang
                             </a>
                         </div>
+                        @endforelse
                     </div>
 
                 </div>
@@ -149,14 +159,14 @@
                                 { id: 4, text: 'Konsumsi sayur hijau di salah satu makan', checked: false }
                             ]
                         }" class="space-y-3.5">
-                            
+
                             <template x-for="item in items" :key="item.id">
                                 <label class="flex items-start gap-3.5 p-3.5 rounded-2xl border border-gray-100 cursor-pointer select-none transition-all duration-200"
                                        :class="item.checked ? 'bg-purple-50/20 border-[#8F55EB]/10' : 'bg-gray-50/50 hover:bg-gray-50 hover:border-gray-200'">
-                                    
+
                                     <!-- Custom Animated Checkbox -->
                                     <div class="relative flex items-center justify-center mt-0.5">
-                                        <input type="checkbox" 
+                                        <input type="checkbox"
                                                x-model="item.checked"
                                                class="sr-only" />
                                         <div class="w-5 h-5 rounded-md border-2 transition-all duration-200 flex items-center justify-center"
@@ -173,7 +183,7 @@
                                           :class="item.checked ? 'line-through text-gray-400 font-medium' : 'text-gray-700 font-semibold'">
                                         <span x-text="item.text"></span>
                                     </span>
-                                    
+
                                 </label>
                             </template>
 

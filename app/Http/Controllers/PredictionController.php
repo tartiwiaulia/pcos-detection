@@ -28,7 +28,6 @@ class PredictionController extends Controller
         'dark_skin'           => 'required|boolean',
     ]);
 
-    // Hanya 7 field ini yang dipakai model (sesuai PemeriksaanInput di FastAPI)
     $fastApiPayload = [
         'weight'             => $validated['weight'],
         'height'             => $validated['height'],
@@ -60,6 +59,16 @@ class PredictionController extends Controller
         'risk_score' => $result['risk_score'],
         'risk_level' => $result['risk_level'],
     ]);
+}
+
+public function dashboard()
+{
+    $predictions = Prediction::where('user_id', Auth::id())
+        ->latest()
+        ->take(5)
+        ->get();
+
+    return view('dashboard', compact('predictions'));
 }
 
 public function history()
