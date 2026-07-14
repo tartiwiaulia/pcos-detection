@@ -25,9 +25,13 @@
         
         // Calculated result variables
         risk_score: 0,
-        risk_level: '', // 'Low', 'Medium', 'High'
+        risk_level: '', // 'Rendah', 'Sedang', 'Tinggi'
         risk_color: '',
-        
+        error_message: '',
+
+        // Alamat API model AI (FastAPI). Sesuaikan kalau di-deploy ke domain lain.
+        aiApiUrl: 'http://127.0.0.1:8000/predict',
+
         // Methods
         validateStep1() {
             return this.systolic > 0 && this.diastolic > 0;
@@ -35,7 +39,7 @@
         validateStep2() {
             return this.cycle_length > 0 && this.period_duration > 0;
         },
-        
+
         nextStep() {
             if (this.step === 1 && !this.validateStep1()) {
                 alert('Silakan isi tekanan darah sistolik dan diastolik Anda terlebih dahulu.');
@@ -50,56 +54,49 @@
         prevStep() {
             if (this.step > 1) this.step--;
         },
-        calculateRisk() {
-            let score = 0;
-            
-            // Age factor
-            if (this.age >= 18 && this.age <= 30) score += 5;
-            
-            // BMI factor
-            let heightM = this.height / 100;
-            let bmi = this.weight / (heightM * heightM);
-            if (bmi >= 25) score += 15;
-            if (bmi >= 30) score += 10;
-            
-            // Cycle length factor
-            if (this.cycle_length < 21 || this.cycle_length > 35) score += 15;
-            
-            // Cycle irregularity (critical)
-            if (this.cycle_irregularity) score += 30;
-            
-            // Severe pain
-            if (this.severe_pain) score += 5;
-            
-            // Symptoms
-            if (this.hirsutism) score += 15;
-            if (this.weight_gain) score += 10;
-            if (this.severe_acne) score += 5;
-            if (this.hair_loss) score += 5;
-            if (this.dark_skin) score += 10;
-            
-            this.risk_score = Math.min(score, 100);
-            
+        applyRiskColor() {
             if (this.risk_score < 35) {
-                this.risk_level = 'Rendah';
                 this.risk_color = 'text-green-600 bg-green-50 border-green-200';
             } else if (this.risk_score < 70) {
-                this.risk_level = 'Sedang';
                 this.risk_color = 'text-amber-600 bg-amber-50 border-amber-200';
             } else {
-                this.risk_level = 'Tinggi';
                 this.risk_color = 'text-red-600 bg-red-50 border-red-200';
             }
         },
-        submitAnalysis() {
+        async submitAnalysis() {
             this.submitting = true;
-            this.calculateRisk();
-            
-            // Simulate AI model processing time
-            setTimeout(() => {
-                this.submitting = false;
+            this.error_message = '';
+
+            try {
+                const response = await fetch(this.aiApiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        weight: this.weight,
+                        height: this.height,
+                        cycle_irregularity: this.cycle_irregularity,
+                        weight_gain: this.weight_gain,
+                        hirsutism: this.hirsutism,
+                        severe_acne: this.severe_acne,
+                        hair_loss: this.hair_loss,
+                        dark_skin: this.dark_skin,
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Respons API tidak valid (' + response.status + ')');
+                }
+
+                const result = await response.json();
+                this.risk_score = result.risk_score;
+                this.risk_level = result.risk_level;
+                this.applyRiskColor();
                 this.step = 4;
-            }, 2500);
+            } catch (err) {
+                this.error_message = 'Gagal terhubung ke server AI. Pastikan API model sedang berjalan di ' + this.aiApiUrl + '.';
+            } finally {
+                this.submitting = false;
+            }
         }
     }">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -121,6 +118,11 @@
                 </div>
                 <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight mb-2">Pemeriksaan Risiko PCOS</h1>
                 <p class="text-gray-500 text-sm font-medium">Jawab pertanyaan dengan jujur untuk hasil yang akurat.</p>
+            </div>
+
+            <!-- API Error Banner -->
+            <div class="max-w-3xl mx-auto mb-6 p-4 rounded-2xl border border-red-200 bg-red-50 text-red-700 text-sm font-semibold"
+                 x-show="error_message && !submitting" x-cloak x-text="error_message">
             </div>
 
             <!-- Steps Tabs Navigation Layout -->
