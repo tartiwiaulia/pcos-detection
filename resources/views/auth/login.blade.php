@@ -50,7 +50,7 @@
                     </span>
                     <div class="flex flex-col text-left">
                         <span class="text-[10px] font-bold text-gray-400 tracking-wide uppercase">Akurasi Model</span>
-                        <span class="text-base font-extrabold text-gray-900 leading-tight">94.2%</span>
+                        <span class="text-base font-extrabold text-gray-900 leading-tight">86%</span>
                     </div>
                 </div>
             </div>
@@ -65,17 +65,20 @@
                 </p>
 
                 <!-- Statistics Widgets Grid -->
+                @php
+                    $formatStat = fn ($n) => $n >= 1000 ? round($n / 1000, 1) . 'k+' : (string) $n;
+                @endphp
                 <div class="grid grid-cols-3 gap-3 w-full">
                     <div class="bg-white/10 border border-white/5 rounded-2xl px-5 py-4 backdrop-blur-md hover:bg-white/15 transition-colors duration-250">
-                        <span class="text-xl font-extrabold text-white block mb-0.5">12k+</span>
+                        <span class="text-xl font-extrabold text-white block mb-0.5">{{ $formatStat($userCount) }}</span>
                         <span class="text-white/70 text-xs font-semibold">Pengguna</span>
                     </div>
                     <div class="bg-white/10 border border-white/5 rounded-2xl px-5 py-4 backdrop-blur-md hover:bg-white/15 transition-colors duration-250">
-                        <span class="text-xl font-extrabold text-white block mb-0.5">48k+</span>
+                        <span class="text-xl font-extrabold text-white block mb-0.5">{{ $formatStat($predictionCount) }}</span>
                         <span class="text-white/70 text-xs font-semibold">Pemeriksaan</span>
                     </div>
                     <div class="bg-white/10 border border-white/5 rounded-2xl px-5 py-4 backdrop-blur-md hover:bg-white/15 transition-colors duration-250">
-                        <span class="text-xl font-extrabold text-white block mb-0.5">94%</span>
+                        <span class="text-xl font-extrabold text-white block mb-0.5">86%</span>
                         <span class="text-white/70 text-xs font-semibold">Akurasi</span>
                     </div>
                 </div>
@@ -124,7 +127,7 @@
                             <input id="email" 
                                    type="email" 
                                    name="email" 
-                                   value="{{ old('email', 'demo@pcoscheck.app') }}" 
+                                   value="{{ old('email') }}"
                                    required 
                                    autofocus 
                                    autocomplete="username" 
@@ -146,9 +149,8 @@
                             </div>
                             <input id="password" 
                                    :type="showPassword ? 'text' : 'password'" 
-                                   name="password" 
-                                   value="password"
-                                   required 
+                                   name="password"
+                                   required
                                    autocomplete="current-password" 
                                    class="block w-full pl-11 pr-11 py-3.5 border border-gray-200 rounded-xl text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#8F55EB]/20 focus:border-[#8F55EB] transition-colors placeholder:text-gray-400 text-sm"
                                    placeholder="••••••••" />
