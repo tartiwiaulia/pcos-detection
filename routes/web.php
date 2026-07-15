@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PredictionController;
+use App\Http\Controllers\ChatbotController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -22,9 +23,8 @@ Route::middleware('auth')->group(function () {
     })->name('pemeriksaan');
 
     Route::post('/pemeriksaan', [PredictionController::class, 'store'])->name('predictions.store');
+    Route::post('/chatbot/ask', [ChatbotController::class, 'ask'])->name('chatbot.ask');
     Route::get('/riwayat', [PredictionController::class, 'history'])->name('riwayat');
-    Route::get('/riwayat/{prediction}', [PredictionController::class, 'show'])->name('predictions.show');
-    Route::delete('/riwayat/{prediction}', [PredictionController::class, 'destroy'])->name('predictions.destroy');
 
     Route::get('/edukasi', function () {
         return view('edukasi');

@@ -7,14 +7,9 @@
         age: 24,
         weight: 58,
         height: 158,
-        systolic: 120,
-        diastolic: 80,
 
         // Step 2 variables
-        cycle_length: 28,
-        period_duration: 5,
         cycle_irregularity: false,
-        severe_pain: false,
 
         // Step 3 variables
         hirsutism: false,
@@ -22,6 +17,8 @@
         severe_acne: false,
         hair_loss: false,
         dark_skin: false,
+        fast_food: false,
+        reg_exercise: false,
 
         // Calculated result variables
         risk_score: 0,
@@ -33,22 +30,7 @@
         aiApiUrl: '/pemeriksaan',
 
         // Methods
-        validateStep1() {
-            return this.systolic > 0 && this.diastolic > 0;
-        },
-        validateStep2() {
-            return this.cycle_length > 0 && this.period_duration > 0;
-        },
-
         nextStep() {
-            if (this.step === 1 && !this.validateStep1()) {
-                alert('Silakan isi tekanan darah sistolik dan diastolik Anda terlebih dahulu.');
-                return;
-            }
-            if (this.step === 2 && !this.validateStep2()) {
-                alert('Silakan isi panjang siklus dan durasi haid terlebih dahulu.');
-                return;
-            }
             this.step++;
         },
         prevStep() {
@@ -79,17 +61,14 @@
                         age: this.age,
                         weight: this.weight,
                         height: this.height,
-                        systolic: this.systolic,
-                        diastolic: this.diastolic,
-                        cycle_length: this.cycle_length,
-                        period_duration: this.period_duration,
                         cycle_irregularity: this.cycle_irregularity,
-                        severe_pain: this.severe_pain,
                         hirsutism: this.hirsutism,
                         weight_gain: this.weight_gain,
                         severe_acne: this.severe_acne,
                         hair_loss: this.hair_loss,
                         dark_skin: this.dark_skin,
+                        fast_food: this.fast_food,
+                        reg_exercise: this.reg_exercise,
                     }),
                 });
 
@@ -102,6 +81,7 @@
                 this.risk_level = result.risk_level;
                 this.applyRiskColor();
                 this.step = 4;
+                this.$dispatch('prediction-ready', { id: result.id });
             } catch (err) {
                 this.error_message = 'Gagal terhubung ke server AI. Pastikan API model sedang berjalan di ' + this.aiApiUrl + '.';
             } finally {
@@ -206,7 +186,7 @@
                             <label for="age" class="text-xs font-bold text-gray-400 uppercase tracking-wide">Umur</label>
                             <span class="text-base font-extrabold text-[#8F55EB] bg-purple-50 px-3 py-1 rounded-xl" x-text="age + ' Tahun'"></span>
                         </div>
-                        <input id="age" type="range" min="15" max="50" x-model="age"
+                        <input id="age" type="range" min="15" max="50" x-model.number="age"
                                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#8F55EB]" />
                     </div>
 
@@ -228,23 +208,6 @@
                         </div>
                         <input id="height" type="range" min="100" max="200" x-model="height"
                                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#8F55EB]" />
-                    </div>
-
-                    <!-- Blood Pressure Inputs -->
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Tekanan Darah</label>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label for="systolic" class="block text-xs font-bold text-gray-400 mb-1.5 uppercase">Sistole (mmHg)</label>
-                                <input id="systolic" type="number" x-model.number="systolic" required
-                                       class="block w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8F55EB]/20 focus:border-[#8F55EB] font-bold text-gray-800 text-sm" />
-                            </div>
-                            <div>
-                                <label for="diastolic" class="block text-xs font-bold text-gray-400 mb-1.5 uppercase">Diastole (mmHg)</label>
-                                <input id="diastolic" type="number" x-model.number="diastolic" required
-                                       class="block w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8F55EB]/20 focus:border-[#8F55EB] font-bold text-gray-800 text-sm" />
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -268,32 +231,6 @@
                     <p class="text-sm text-gray-500 font-medium leading-relaxed">Informasi tentang pola menstruasimu.</p>
                 </div>
 
-                <!-- Fields -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <!-- Panjang Siklus -->
-                    <div>
-                        <div class="flex items-center gap-1.5 mb-2">
-                            <span class="text-[10px] font-extrabold text-gray-500 uppercase tracking-wide">Panjang Siklus (Hari)</span>
-                            <svg class="w-3.5 h-3.5 text-gray-400 cursor-pointer hover:text-gray-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
-                            </svg>
-                        </div>
-                        <input type="number" x-model.number="cycle_length"
-                               class="block w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8F55EB]/20 focus:border-[#8F55EB] font-bold text-gray-800 text-sm" />
-                    </div>
-                    <!-- Durasi Haid -->
-                    <div>
-                        <div class="flex items-center gap-1.5 mb-2">
-                            <span class="text-[10px] font-extrabold text-gray-500 uppercase tracking-wide">Durasi Haid (Hari)</span>
-                            <svg class="w-3.5 h-3.5 text-gray-400 cursor-pointer hover:text-gray-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
-                            </svg>
-                        </div>
-                        <input type="number" x-model.number="period_duration"
-                               class="block w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#8F55EB]/20 focus:border-[#8F55EB] font-bold text-gray-800 text-sm" />
-                    </div>
-                </div>
-
                 <!-- Toggles -->
                 <div class="space-y-4 mb-8">
                     <!-- Siklus saya tidak teratur -->
@@ -304,18 +241,6 @@
                         </div>
                         <div class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" x-model="cycle_irregularity" class="sr-only peer" />
-                            <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-[#8F55EB]/20 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#8F55EB]"></div>
-                        </div>
-                    </label>
-
-                    <!-- Nyeri haid berlebihan -->
-                    <label class="flex items-center justify-between p-4 bg-white border border-gray-150 rounded-2xl cursor-pointer select-none transition-colors hover:bg-gray-50">
-                        <div>
-                            <span class="block text-sm font-bold text-gray-800 leading-tight">Nyeri haid berlebihan</span>
-                            <span class="text-xs text-gray-400 font-medium">Mengganggu aktivitas harian</span>
-                        </div>
-                        <div class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" x-model="severe_pain" class="sr-only peer" />
                             <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-[#8F55EB]/20 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#8F55EB]"></div>
                         </div>
                     </label>
@@ -406,6 +331,30 @@
                         </div>
                         <div class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" x-model="dark_skin" class="sr-only peer" />
+                            <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-[#8F55EB]/20 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#8F55EB]"></div>
+                        </div>
+                    </label>
+
+                    <!-- Sering makan cepat saji -->
+                    <label class="flex items-center justify-between p-4 bg-white border border-gray-150 rounded-2xl cursor-pointer select-none transition-colors hover:bg-gray-50">
+                        <div>
+                            <span class="block text-sm font-bold text-gray-800 leading-tight">Sering makan cepat saji</span>
+                            <span class="text-xs text-gray-400 font-medium">Fast food beberapa kali seminggu</span>
+                        </div>
+                        <div class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" x-model="fast_food" class="sr-only peer" />
+                            <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-[#8F55EB]/20 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#8F55EB]"></div>
+                        </div>
+                    </label>
+
+                    <!-- Rutin berolahraga -->
+                    <label class="flex items-center justify-between p-4 bg-white border border-gray-150 rounded-2xl cursor-pointer select-none transition-colors hover:bg-gray-50">
+                        <div>
+                            <span class="block text-sm font-bold text-gray-800 leading-tight">Rutin berolahraga</span>
+                            <span class="text-xs text-gray-400 font-medium">Minimal beberapa kali seminggu</span>
+                        </div>
+                        <div class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" x-model="reg_exercise" class="sr-only peer" />
                             <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-[#8F55EB]/20 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#8F55EB]"></div>
                         </div>
                     </label>
@@ -533,11 +482,17 @@
                         </ul>
                     </div>
 
+                    <!-- Asisten PCOS (chat langsung di dalam card hasil) -->
+                    <div>
+                        <h4 class="text-sm font-bold text-gray-800 mb-3.5 uppercase tracking-wide">Tanya Asisten PCOS</h4>
+                        <x-pcos-chatbot mode="inline" />
+                    </div>
+
                 </div>
 
                 <!-- Back to dashboard Actions -->
                 <div class="mt-8 pt-6 border-t border-gray-100 flex flex-col sm:flex-row sm:justify-between items-center gap-3">
-                    <button @click="step = 1; cycle_length = 28; period_duration = 5; cycle_irregularity = false; severe_pain = false; hirsutism = false; weight_gain = false; severe_acne = false; hair_loss = false; dark_skin = false;"
+                    <button @click="step = 1; cycle_irregularity = false; hirsutism = false; weight_gain = false; severe_acne = false; hair_loss = false; dark_skin = false; fast_food = false; reg_exercise = false; $dispatch('prediction-ready', { id: null });"
                             class="w-full sm:w-auto bg-gray-150 hover:bg-gray-200 text-gray-700 font-bold py-3.5 px-6 rounded-xl transition duration-150 text-sm text-center">
                         Ulangi Pemeriksaan
                     </button>
@@ -551,4 +506,6 @@
 
         </div>
     </div>
+
+    <x-pcos-chatbot />
 </x-app-layout>
