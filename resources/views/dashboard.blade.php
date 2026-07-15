@@ -49,53 +49,66 @@
                             <p class="text-xs font-semibold text-gray-400">Grafik skor risiko dari pemeriksaan sebelumnya</p>
                         </div>
 
-                        <!-- SVG Premium Mock Chart -->
+                        @php
+                            $points = $chartData->values();
+                            $pointCount = $points->count();
+                            $coords = $points->map(function ($point, $i) use ($pointCount) {
+                                $x = $pointCount === 1 ? 250 : 50 + ($i * (400 / ($pointCount - 1)));
+                                $score = min(max($point['score'], 0), 100);
+                                $y = 160 - ($score / 100) * 140;
+                                return ['x' => round($x, 1), 'y' => round($y, 1), 'label' => $point['label'], 'score' => $point['score']];
+                            });
+                            if ($pointCount > 0) {
+                                $linePath = 'M ' . $coords->map(fn ($c) => $c['x'] . ' ' . $c['y'])->implode(' L ');
+                                $areaPath = $linePath . ' L ' . $coords->last()['x'] . ' 160 L ' . $coords->first()['x'] . ' 160 Z';
+                            }
+                        @endphp
+
+                        <!-- Risk Trend Chart (rendered from actual prediction history) -->
                         <div class="relative w-full h-56 bg-gray-50/50 border border-gray-100 rounded-2xl p-4 flex items-center justify-center overflow-hidden">
-                            <svg class="w-full h-full" viewBox="0 0 500 180" preserveAspectRatio="none">
-                                <defs>
-                                    <!-- Area Gradient -->
-                                    <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stop-color="#8F55EB" stop-opacity="0.22" />
-                                        <stop offset="100%" stop-color="#8F55EB" stop-opacity="0" />
-                                    </linearGradient>
-                                    <!-- Line Stroke Glow -->
-                                    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                                        <feGaussianBlur stdDeviation="3" result="blur" />
-                                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                                    </filter>
-                                </defs>
+                            @if ($pointCount === 0)
+                                <p class="text-sm font-semibold text-gray-400 text-center px-6">Belum ada riwayat pemeriksaan untuk ditampilkan di grafik.</p>
+                            @else
+                                <svg class="w-full h-full" viewBox="0 0 500 180" preserveAspectRatio="none">
+                                    <defs>
+                                        <!-- Area Gradient -->
+                                        <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stop-color="#8F55EB" stop-opacity="0.22" />
+                                            <stop offset="100%" stop-color="#8F55EB" stop-opacity="0" />
+                                        </linearGradient>
+                                        <!-- Line Stroke Glow -->
+                                        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                                            <feGaussianBlur stdDeviation="3" result="blur" />
+                                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                                        </filter>
+                                    </defs>
 
-                                <!-- Grid Lines -->
-                                <line x1="0" y1="30" x2="500" y2="30" stroke="#f1f5f9" stroke-width="1.5" />
-                                <line x1="0" y1="80" x2="500" y2="80" stroke="#f1f5f9" stroke-width="1.5" />
-                                <line x1="0" y1="130" x2="500" y2="130" stroke="#f1f5f9" stroke-width="1.5" />
+                                    <!-- Grid Lines -->
+                                    <line x1="0" y1="30" x2="500" y2="30" stroke="#f1f5f9" stroke-width="1.5" />
+                                    <line x1="0" y1="80" x2="500" y2="80" stroke="#f1f5f9" stroke-width="1.5" />
+                                    <line x1="0" y1="130" x2="500" y2="130" stroke="#f1f5f9" stroke-width="1.5" />
 
-                                <!-- Area Path -->
-                                <path d="M 50 140 Q 150 110, 250 70 T 450 100 L 450 160 L 50 160 Z" fill="url(#chartGradient)" />
+                                    @if ($pointCount > 1)
+                                        <!-- Area Path -->
+                                        <path d="{{ $areaPath }}" fill="url(#chartGradient)" />
+                                        <!-- Line Path -->
+                                        <path d="{{ $linePath }}" fill="none" stroke="#8F55EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)" />
+                                    @endif
 
-                                <!-- Line Path -->
-                                <path d="M 50 140 Q 150 110, 250 70 T 450 100" fill="none" stroke="#8F55EB" stroke-width="3" stroke-linecap="round" filter="url(#glow)" />
+                                    <!-- Data Points -->
+                                    @foreach ($coords as $c)
+                                        <circle cx="{{ $c['x'] }}" cy="{{ $c['y'] }}" r="5" fill="#ffffff" stroke="#8F55EB" stroke-width="2.5" class="hover:scale-125 transition-transform duration-200 cursor-pointer" />
+                                        <text x="{{ $c['x'] }}" y="{{ max($c['y'] - 12, 12) }}" font-family="Figtree, sans-serif" font-size="9" font-weight="bold" fill="#8F55EB" text-anchor="middle">{{ round($c['score']) }}%</text>
+                                    @endforeach
+                                </svg>
 
-                                <!-- Interactive Dots -->
-                                <circle cx="50" cy="140" r="5" fill="#ffffff" stroke="#8F55EB" stroke-width="2.5" class="hover:scale-125 transition-transform duration-200 cursor-pointer" />
-                                <circle cx="210" cy="90" r="5" fill="#ffffff" stroke="#8F55EB" stroke-width="2.5" class="hover:scale-125 transition-transform duration-200 cursor-pointer" />
-                                <circle cx="340" cy="80" r="5" fill="#ffffff" stroke="#8F55EB" stroke-width="2.5" class="hover:scale-125 transition-transform duration-200 cursor-pointer" />
-                                <circle cx="450" cy="100" r="5" fill="#ffffff" stroke="#8F55EB" stroke-width="2.5" class="hover:scale-125 transition-transform duration-200 cursor-pointer" />
-
-                                <!-- Tooltip Value text labels (simulated) -->
-                                <text x="50" y="125" font-family="Figtree, sans-serif" font-size="9" font-weight="bold" fill="#8F55EB" text-anchor="middle">12%</text>
-                                <text x="210" y="75" font-family="Figtree, sans-serif" font-size="9" font-weight="bold" fill="#8F55EB" text-anchor="middle">45%</text>
-                                <text x="340" y="65" font-family="Figtree, sans-serif" font-size="9" font-weight="bold" fill="#8F55EB" text-anchor="middle">60%</text>
-                                <text x="450" y="85" font-family="Figtree, sans-serif" font-size="9" font-weight="bold" fill="#8F55EB" text-anchor="middle">38%</text>
-                            </svg>
-
-                            <!-- Custom Chart X-Axis Labels -->
-                            <div class="absolute bottom-2 left-0 right-0 px-10 flex justify-between text-[10px] font-bold text-gray-400 tracking-wider">
-                                <span>Maret</span>
-                                <span>Mei</span>
-                                <span>Juni</span>
-                                <span>Juli</span>
-                            </div>
+                                <!-- Custom Chart X-Axis Labels -->
+                                <div class="absolute bottom-2 left-0 right-0 px-10 flex justify-between text-[10px] font-bold text-gray-400 tracking-wider">
+                                    @foreach ($coords as $c)
+                                        <span>{{ $c['label'] }}</span>
+                                    @endforeach
+                                </div>
+                            @endif
                         </div>
                     </div>
 
@@ -192,7 +205,7 @@
                         <!-- Progress Bar bottom banner -->
                         <div x-data class="mt-6 pt-5 border-t border-gray-100 flex items-center justify-between text-xs font-bold text-gray-400 uppercase tracking-wide">
                             <span>Saran Kesehatan</span>
-                            <span class="text-[#8F55EB] bg-purple-50 px-2.5 py-0.5 rounded-full">Updated Daily</span>
+                            <span class="text-[#8F55EB] bg-purple-50 px-2.5 py-0.5 rounded-full">Rutin Setiap Hari</span>
                         </div>
                     </div>
                 </div>
