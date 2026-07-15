@@ -10,7 +10,8 @@ app = FastAPI(
     version="1.0"
 )
 
-# Diakses langsung dari browser (fetch di pemeriksaan.blade.php), bukan lewat backend Laravel.
+# CORS dibiarkan terbuka untuk kemudahan pengembangan lokal. Di alur produksi,
+# permintaan masuk lewat backend Laravel (PredictionController), bukan langsung dari browser.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -27,11 +28,13 @@ with open("pcos_scaler.pkl", "rb") as scaler_file:
     scaler = pickle.load(scaler_file)
 
 # Urutan wajib sama dengan scaler.feature_names_in_ saat training:
-# ['BMI', 'Cycle(R/I)', 'Weight gain(Y/N)', 'hair growth(Y/N)',
-#  'Pimples(Y/N)', 'Hair loss(Y/N)', 'Skin darkening (Y/N)']
+# ['BMI', 'Age (yrs)', 'Cycle(R/I)', 'Weight gain(Y/N)', 'hair growth(Y/N)',
+#  'Pimples(Y/N)', 'Hair loss(Y/N)', 'Skin darkening (Y/N)',
+#  'Fast food (Y/N)', 'Reg.Exercise(Y/N)']
 
 
 class PemeriksaanInput(BaseModel):
+    age: int
     weight: float
     height: float
     cycle_irregularity: bool
@@ -40,6 +43,8 @@ class PemeriksaanInput(BaseModel):
     severe_acne: bool
     hair_loss: bool
     dark_skin: bool
+    fast_food: bool
+    reg_exercise: bool
 
 
 class PemeriksaanOutput(BaseModel):
@@ -60,12 +65,15 @@ def predict(data: PemeriksaanInput):
 
     features = np.array([[
         bmi,
+        data.age,
         int(data.cycle_irregularity),
         int(data.weight_gain),
         int(data.hirsutism),
         int(data.severe_acne),
         int(data.hair_loss),
         int(data.dark_skin),
+        int(data.fast_food),
+        int(data.reg_exercise),
     ]])
 
     scaled = scaler.transform(features)
